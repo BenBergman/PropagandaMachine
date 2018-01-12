@@ -26,7 +26,7 @@
 const int volPin = 0;
 const int triggerPin = 8;
 
-Bounce debouncer = Bounce();                                                                                                                                                              
+Bounce debouncer = Bounce();
 
 void setup() {
   // open the serial port:
@@ -35,7 +35,7 @@ void setup() {
   //delay(4000);
   Keyboard.begin();
   pinMode(volPin, INPUT);
-  
+
   pinMode(triggerPin, INPUT);
   digitalWrite(triggerPin, HIGH);
   debouncer.attach(triggerPin);
