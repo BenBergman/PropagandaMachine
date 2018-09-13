@@ -21,7 +21,7 @@
  http://www.arduino.cc/en/Tutorial/KeyboardSerial
  */
 
-//#include "Keyboard.h"
+#include <Keyboard.h>
 
 const int volPin = 0;
 const int triggerPin = 8;
@@ -46,10 +46,11 @@ unsigned long lastDebounceTime = 0;
 unsigned long debounceDelay = 200;
 
 int prevTriggerState = HIGH;
+int prevMicState = LOW;
 
 void loop() {
   int reading = digitalRead(volPin);
-  
+
   debouncer.update();
 
   int triggerState = debouncer.read();
@@ -57,21 +58,24 @@ void loop() {
   if (triggerState == LOW && prevTriggerState == HIGH) {
     Keyboard.press(' ');
     Serial.println("Pressing ' ' (trigger)");
+    prevTriggerState = LOW;
   } else if (triggerState == HIGH && prevTriggerState == LOW) {
+    Serial.println("trigger input stopped. Releasing all");
     Keyboard.releaseAll();
-  } else if (triggerState == HIGH) {
+    prevTriggerState = HIGH;
+  }
 
-    if (reading == HIGH) {
-      Keyboard.press(' ');
-      Serial.println("Pressing ' ' (mic)");
-      lastDebounceTime = millis();
-    } else {
-      if ((millis() - lastDebounceTime) > debounceDelay) {
-        //Serial.println("Releasing all");
-        Keyboard.releaseAll();
-      }
+  if (reading == HIGH) {
+    Serial.println("Mic input detected");
+    lastDebounceTime = millis();
+    prevMicState = HIGH;
+  } else if (reading == LOW && prevMicState == HIGH) {
+    if ((millis() - lastDebounceTime) > debounceDelay) {
+      Serial.println("Mic input stopped. Releasing all");
+      Keyboard.releaseAll();
+      prevMicState = LOW;
+      prevTriggerState = HIGH;
     }
-
   }
 }
-                                                                                                                                                                                           
+
